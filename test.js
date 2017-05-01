@@ -9,6 +9,7 @@ function test(){
   }
   xhttp.open("GET", "test.py", true);
   xhttp.send();
+  Return xhttp.responseText;
 }
 
 var interval = setInterval(updateInfo, 50)
@@ -132,7 +133,8 @@ document.body.addEventListener("touchmove", function (e) {
 }, false);
 
 function updateInfo(){
-  document.getElementById('info').innerHTML = "Throttle: " + maxPower + "% Current Power: " + Math.round(power * maxPower) + "% of Max Heading: " + heading;
+  var python = test();
+  document.getElementById('info').innerHTML = "Throttle: " + maxPower + "% Current Power: " + Math.round(power * maxPower) + "% of Max Heading: " + heading + " Python reponse: " + python;
 }
 
 window.onload = interval;
