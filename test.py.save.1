@@ -1,0 +1,75 @@
+#!/usr/bin/pythonRoot
+#This is a script
+
+
+#flup helps implement fastcgi, which lets our requests run quickly
+#and with little overhead
+from flup.server.fcgi import WSGIServer
+import sys, urlparse
+#This module governs the 16-channel Adafruit PWM
+import Adafruit_PCA9685
+pwm = Adafruit_PCA9685.PCA9685()
+#300 frequency is good for driving DC motors
+pwm.set_pwm_freq(300)
+
+
+def app(environ, start_response):
+	# set a default value for the pins
+	pwm.set_pwm(13, 0, 2000)
+	pwm.set_pwm(9, 0, 2000)
+	#parse the http request into x and y percentages
+	start_response("200 OK", [("Content-Type", "text/html")])
+	i = urlparse.parse_qs(environ["QUERY_STRING"])
+	if "x" in i and "y" in i:
+		x = int(i["x"][0])
+		y = int(i["y"][0])
+		#the max difference between the two wheels 
+		#as a percentage of the faster wheel's speed
+		maxDif = 0.25
+		#the speed of the faster wheel
+		maxSpeed = int( round( abs(y * 4095) / 100 ) )
+		#the speed of the slower wheel
+		maxLower = int( maxSpeed - round( abs(x/100) * (maxSpeed * maxDif) ) )
+		#debug string for the client
+		string = "x: " + str(x) + " y: " + str(y)
+
+		#if y is positive, set the motors to forward mode
+		if y < 0:
+			pwm.set_pwm(15, 0, 0)
+                        pwm.set_pwm(11, 0, 0)
+			pwm.set_pwm(14, 0, 4095)
+			pwm.set_pwm(10, 0, 4095)
+			string += " Moving forward "
+		else:
+			pwm.set_pwm(15, 0, 4095)
+			pwm.set_pwm(11, 0, 4095)
+			pwm.set_pwm(14, 0, 0)
+			pwm.set_pwm(10, 0, 0)
+			string += " Moving backward"
+		#set the speed of each wheel according to direction
+		if x >= 0:
+			if y < 0:
+				pwm.set_pwm(13, 0, maxSpeed)
+                		pwm.set_pwm(9, 0, maxLower)
+				string += " and moving right; x= " + str(x)
+			else:
+				pwm.set_pwm(13, 0, maxLower)
+				pwm.set_pwm(9, 0, maxSpeed)
+				string += " and moving left"
+		else:
+			if y < 0:
+				pwm.set_pwm(13, 0, maxLower)
+                        	pwm.set_pwm(9, 0, maxSpeed)
+				string += " and moving right"
+			else:
+				pwm.set_pwm(13, 0, maxSpeed)
+				pwm.set_pwm(9, 0, maxLower)
+				string += " and moving left"
+		#return the debug string
+		yield(string);
+	#something went wrong. blarg!
+	else:
+		yield ('blargh')
+
+#run the app!
+WSGIServer(app).run()

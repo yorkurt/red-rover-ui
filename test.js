@@ -1,18 +1,22 @@
+
 var maxPower = 0;
 var heading = "None";
 var power = 0;
-function test(){
+var xHeading = 0;
+var yHeading = 0;
+var python = " ";
+
+function test(x, y){
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function(){
     if (this.readyState == 4 && this.status == 200) {
-   }
+   	python = this.responseText;
+    }
   }
-  xhttp.open("GET", "test.py", true);
+  var requestString = "test.py?x=" + x + "&y=" + y;
+  xhttp.open("GET", requestString, true);
   xhttp.send();
-  Return xhttp.responseText;
 }
-
-var interval = setInterval(updateInfo, 50)
 
 
 function init(){
@@ -22,6 +26,7 @@ function init(){
   drawOrbit();
   touchMe.addEventListener("touchmove", draw, false);
   orbit.addEventListener("touchmove", drawPower, false);
+  updateInfo();
 }
 
 function drawPower(){
@@ -114,27 +119,15 @@ function draw() {
     ctx.fill();
     power = ((lineLength > radius)?radius:lineLength) / radius;
     heading = getHeading(x, y);
+    xHeading = Math.round(((x-150) /100) * maxPower);
+    yHeading = Math.round(((y-150)/ 100) * maxPower);
     }
 }
-document.body.addEventListener("touchmove", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
-document.body.addEventListener("touchend", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
-document.body.addEventListener("touchmove", function (e) {
-  if (e.target == canvas) {
-    e.preventDefault();
-  }
-}, false);
 
 function updateInfo(){
-  var python = test();
-  document.getElementById('info').innerHTML = "Throttle: " + maxPower + "% Current Power: " + Math.round(power * maxPower) + "% of Max Heading: " + heading + " Python reponse: " + python;
+  test(xHeading, yHeading);
+  document.getElementById('info').innerHTML = "Throttle: " +
+  maxPower + "% Current Power: " + Math.round(power * maxPower) +
+  "% of Max Heading: " + heading + " Python Reponse: " + python;
+  setTimeout(updateInfo, 100);
 }
-
-window.onload = interval;
