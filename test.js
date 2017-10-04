@@ -5,15 +5,18 @@ var power = 0;
 var xHeading = 0;
 var yHeading = 0;
 var python = " ";
+var armPos = "open";
+var gripPos = "open";
 
 function test(x, y){
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function(){
     if (this.readyState == 4 && this.status == 200) {
    	python = this.responseText;
+	test(xHeading, yHeading);
     }
   }
-  var requestString = "test.py?x=" + x + "&y=" + y;
+  var requestString = "test.py?x=" + x + "&y=" + y + "&g=" + gripPos + "&a=" + armPos;
   xhttp.open("GET", requestString, true);
   xhttp.send();
 }
@@ -26,6 +29,7 @@ function init(){
   drawOrbit();
   touchMe.addEventListener("touchmove", draw, false);
   orbit.addEventListener("touchmove", drawPower, false);
+  test(0, 0);
   updateInfo();
 }
 
@@ -125,9 +129,30 @@ function draw() {
 }
 
 function updateInfo(){
-  test(xHeading, yHeading);
   document.getElementById('info').innerHTML = "Throttle: " +
   maxPower + "% Current Power: " + Math.round(power * maxPower) +
   "% of Max Heading: " + heading + " Python Reponse: " + python;
   setTimeout(updateInfo, 100);
 }
+function toggleArm(){
+  button = document.getElementById("arm");
+  if (button.innerHTML == 'Open Arm')
+    {
+    button.innerHTML = "Close Arm";
+    armPos = "open";		
+    } else {
+    button.innerHTML = "Open Arm";
+    armPos = "closed";
+    }
+}
+function toggleGrip(){
+  button = document.getElementById('grip');
+  if (button.innerHTML == "Open Grip") {
+    button.innerHTML = "Close Grip";
+    gripPos = "open";
+    } else {
+    button.innerHTML = "Open Grip";
+    gripPos = "closed";
+  }
+}
+
