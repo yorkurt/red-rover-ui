@@ -35,9 +35,9 @@ sudo chmod -R u+s /usr/bin/pythonRoot
 ```
 sudo nano /etc/lighttpd/lighttpd.conf
 ```
-* Add "mod_cgi" and "mod_fastcgi" to the list of mods
-* Change server and groupname to lighttpd
-* Change the port to 8080
+* Add `mod_cgi` and `mod_fastcgi` to the list of mods
+* Change server and groupname to `lighttpd`
+* Change the port to `8080`
 * Append the following lines:
 ```
 fastcgi.server = (
